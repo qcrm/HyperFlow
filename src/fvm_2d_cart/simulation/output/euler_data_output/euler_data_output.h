@@ -1,14 +1,16 @@
-#ifndef __OUTPUT_H
-#define __OUTPUT_H
+#ifndef __EULER_DATA_OUTPUT_H
+#define __EULER_DATA_OUTPUT_H
 
 #include <fstream>
 
-#include "../../model/euler_ideal_gas/euler_ideal_gas.h"
-#include "../../mesh/mesh/mesh.h"
+#include "../../../model/euler_ideal_gas/euler_ideal_gas.h"
+#include "../data_output/data_output.h"
 
 namespace HyperFlow {
 
 class EulerIdealGasDataOutput
+:
+    public DataOutput
 {
     
     public:
@@ -18,7 +20,7 @@ class EulerIdealGasDataOutput
         
         /* Constructor supplying spatio-temporal extents
          * for results metadata */
-        EulerIdealGasDataOutput(const std::shared_ptr<EulerIdealGasModel> _model,
+        EulerIdealGasDataOutput(const std::shared_ptr<Model> _model,
                                 const double _x_left,
                                 const double _x_right,
                                 const double _y_bottom,
@@ -30,32 +32,9 @@ class EulerIdealGasDataOutput
         virtual ~EulerIdealGasDataOutput();
         
         /* Output data to file */
-        void to_file(const std::shared_ptr<Mesh>& mesh,
+        virtual void to_file(const std::shared_ptr<Mesh>& mesh,
                      const unsigned int n,
                      const double t);
-
-    private:
-       
-        /* Pointer to the model equations */
-        std::shared_ptr<EulerIdealGasModel> model;
-        
-        /* Left domain extent */
-        double x_left;
-        
-        /* Right domain extent */
-        double x_right;
-        
-        /* Bottom domain extent */
-        double y_bottom;
-        
-        /* Top domain extent */
-        double y_top;
-        
-        /* Start time of the simulation */
-        double t_start;
-        
-        /* End time of the simulation */
-        double t_end;
 };
 
 }

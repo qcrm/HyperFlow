@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "../../tensor/tensor.h"
+#include "../../model/model/model.h"
 #include "../../model/euler_ideal_gas/euler_ideal_gas.h"
 #include "../../mesh/mesh_block/mesh_block.h"
 #include "../../mesh/mesh/mesh.h"
@@ -20,10 +21,11 @@
 #include "../initcon/doublerp/doublerp.h"
 #include "../initcon/quadrp/quadrp.h"
 #include "../initcon/sphericalrp/sphericalrp.h"
-#include "scheme/riemann/riemann_hllc/riemann_hllc.h"
-#include "scheme/timestep/timestep.h"
-#include "scheme/godunov/godunov.h"
-#include "scheme/ode/forward_euler/forward_euler.h"
+#include "../../scheme/riemann/riemann_hllc/riemann_hllc.h"
+#include "../../scheme/timestep/timestep.h"
+#include "../../scheme/godunov/godunov.h"
+#include "../../scheme/ode/forward_euler/forward_euler.h"
+#include "../output/euler_data_output/euler_data_output.h"
 
 using json = nlohmann::json;
 
@@ -38,8 +40,7 @@ class JSONParser
         JSONParser();
 
         /* Constructor with model and JSON config */
-        JSONParser(std::shared_ptr<EulerIdealGasModel> _model,
-                   const json& _config);
+        JSONParser(const json& _config);
 
         /* Destructor */
         virtual ~JSONParser();
@@ -75,7 +76,7 @@ class JSONParser
         std::shared_ptr<Model> generate_model();
 
         /* Create model data output */
-        std::shared_ptr<DataOutput> generate_data_output(const std::shared_ptr<Model>& model);
+        std::shared_ptr<DataOutput> generate_data_output();
 
         /* Create mesh */
         std::shared_ptr<Mesh> generate_mesh();
@@ -84,11 +85,10 @@ class JSONParser
         std::shared_ptr<InitialCondition> generate_initial_condition();
 
         /* Create Riemann solver flux scheme */
-        std::shared_ptr<RiemannSolver> generate_riemann_solver(const std::shared_ptr<Model>& model);
+        std::shared_ptr<RiemannSolver> generate_riemann_solver();
 
         /* Create explicit time step calculation */
-        std::shared_ptr<TimeStep> generate_time_step(const std::shared_ptr<Model>& model,
-                                                     const double cfl);
+        std::shared_ptr<TimeStep> generate_time_step();
 
         /* Create the spatial discretisation scheme */
         std::shared_ptr<Scheme> generate_spatial_scheme(const std::shared_ptr<Model>& model,
@@ -129,7 +129,7 @@ class JSONParser
 
         /* Pointer to the model for boundary condition
          * generation */
-        std::shared_ptr<EulerIdealGasModel> model;
+        std::shared_ptr<Model> model;
 
     	/* Config JSON */
     	json config;

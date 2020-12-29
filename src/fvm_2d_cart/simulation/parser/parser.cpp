@@ -10,10 +10,8 @@ JSONParser::JSONParser()
 {}
 
 /* Constructor with JSON config */
-JSONParser::JSONParser(std::shared_ptr<EulerIdealGasModel> _model,
-                       const json& _config)
+JSONParser::JSONParser(const json& _config)
 :
-    model(_model),
     config(_config)
 {
     /* Start time of the simulation */
@@ -105,8 +103,6 @@ const double JSONParser::get_cfl() const
 /* Create model equations system */
 std::shared_ptr<Model> JSONParser::generate_model()
 {
-    std::shared_ptr<Model> model = nullptr;
-
     std::string model_type = config["model"]["model"];   
     if (model_type == "EulerIdealGas") {
         double gamma = config["model"]["gamma"];
@@ -119,7 +115,7 @@ std::shared_ptr<Model> JSONParser::generate_model()
 }
 
 /* Create model data output */
-std::shared_ptr<DataOutput> generate_data_output(const std::shared_ptr<Model>& model)
+std::shared_ptr<DataOutput> JSONParser::generate_data_output()
 {
     std::shared_ptr<DataOutput> data_output = nullptr;
 
@@ -175,30 +171,31 @@ std::shared_ptr<InitialCondition> JSONParser::generate_initial_condition()
     std::shared_ptr<InitialCondition> initcon = nullptr;
 
     if (initial_condition_type == "Constant") {
-        init_con = generate_constant_initial_condition();
+        initcon = generate_constant_initial_condition();
     } else if (initial_condition_type == "DoubleRiemannProblem") {
-        init_con = generate_double_riemann_problem_initial_condition();
+        initcon = generate_double_riemann_problem_initial_condition();
     } else if (initial_condition_type == "QuadRiemannProblem") {
-        init_con = generate_quad_riemann_problem_initial_condition():
+        initcon = generate_quad_riemann_problem_initial_condition();
     } else if (initial_condition_type == "SphericalRiemannProblem") {
-        init_con = generate_spherical_riemann_problem_initial_condition();
+        initcon = generate_spherical_riemann_problem_initial_condition();
     } else {
         std::cout << "Initial condition '" << initial_condition_type << "' not supported. Returning null initial condition." << std::endl;
-        return null_ptr;
+        return nullptr;
     }
 
-    return init_con
+    return initcon;
 }
 
 /* Create Riemann solver flux scheme */
-std::shared_ptr<RiemannSolver> JSONParser::generate_riemann_solver(const std::shared_ptr<Model>& model)
+std::shared_ptr<RiemannSolver> JSONParser::generate_riemann_solver()
 {
     std::shared_ptr<RiemannSolver> riemann = nullptr;
 
     std::string model_type = config["model"]["model"];
     std::string riemann_type = config["scheme"]["riemann"];
     if ((model_type == "EulerIdealGas") && (riemann_type == "HLLCEuler")) {
-        riemann = std::make_shared<HLLCEulerRiemannSolver>(model);
+        std::shared_ptr<EulerIdealGasModel> euler_model = std::static_pointer_cast<EulerIdealGasModel>(model);
+        riemann = std::make_shared<HLLCEulerRiemannSolver>(euler_model);
     } else {
         std::cout << "Riemann solver type '" << riemann_type 
                   << "' not supported for model '" << model_type 
@@ -209,8 +206,7 @@ std::shared_ptr<RiemannSolver> JSONParser::generate_riemann_solver(const std::sh
 }
 
 /* Create explicit time step calculation */
-std::shared_ptr<TimeStep> JSONParser::generate_time_step(const std::shared_ptr<Model>& model,
-                                                         const double cfl)
+std::shared_ptr<TimeStep> JSONParser::generate_time_step()
 {
     return std::make_shared<TimeStep>(model, cfl);
 }
@@ -233,7 +229,7 @@ std::shared_ptr<Scheme> JSONParser::generate_spatial_scheme(const std::shared_pt
 }
 
 /* Create ordinary differential equation time integrator */
-std::shared_ptr<ODESolver> JSONParser::generate_ode_solver()
+std::shared_ptr<ODESolver> JSONParser::generate_ode_solver() {
     std::shared_ptr<ODESolver> ode_solver = nullptr;
 
     std::string ode_type = config["scheme"]["ode"];
@@ -284,6 +280,8 @@ std::shared_ptr<ConstantInitialCondition> JSONParser::generate_constant_initial_
 /* Create double riemann problem initial condition */
 std::shared_ptr<DoubleRiemannProblemInitialCondition> JSONParser::generate_double_riemann_problem_initial_condition()
 {
+    std::string variable_type = config["initial_condition"]["variables"];
+
     double x_lm_interface = config["initial_condition"]["x_lm_interface"];
     double x_mr_interface = config["initial_condition"]["x_mr_interface"];
 
@@ -316,6 +314,8 @@ std::shared_ptr<DoubleRiemannProblemInitialCondition> JSONParser::generate_doubl
 /* Create quad riemann problem initial condition */
 std::shared_ptr<QuadRiemannProblemInitialCondition> JSONParser::generate_quad_riemann_problem_initial_condition()
 {
+    std::string variable_type = config["initial_condition"]["variables"];
+
     double x_interface = config["initial_condition"]["x_interface"];
     double y_interface = config["initial_condition"]["y_interface"];
 
@@ -355,7 +355,7 @@ std::shared_ptr<QuadRiemannProblemInitialCondition> JSONParser::generate_quad_ri
 }
 
 /* Create spherical riemann problem initial condition */
-std::shared_ptr<QuadRiemannProblemInitialCondition> JSONParser::generate_spherical_riemann_problem_initial_condition()
+std::shared_ptr<SphericalRiemannProblemInitialCondition> JSONParser::generate_spherical_riemann_problem_initial_condition()
 {
     double radius = config["initial_condition"]["radius"];
     double x_origin = config["initial_condition"]["x_origin"];
@@ -370,6 +370,9 @@ std::shared_ptr<QuadRiemannProblemInitialCondition> JSONParser::generate_spheric
     for (auto& elem : config["initial_condition"]["init_ext_state"]) {
         init_ext_state.push_back(elem);
     }
+
+    init_sphere_state.output();
+    init_ext_state.output();
 
     init_sphere_state = model->prim_to_cons(init_sphere_state);
     init_ext_state = model->prim_to_cons(init_ext_state);

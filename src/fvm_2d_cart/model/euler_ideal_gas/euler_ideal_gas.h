@@ -10,7 +10,9 @@
 
 namespace HyperFlow {
 
-class EulerIdealGasModel : public Model
+class EulerIdealGasModel
+:
+    public Model
 {
     
     public:
@@ -50,19 +52,19 @@ class EulerIdealGasModel : public Model
 
         /* Convert the conservative flow variables to the
          * primitive flow variables */
-        Vec1D cons_to_prim(const Vec1D& cons);
+        virtual Vec1D cons_to_prim(const Vec1D& cons);
 
         /* Convert the primitive flow variables to the
          * conservative flow variables */
-        Vec1D prim_to_cons(const Vec1D& prim);
+        virtual Vec1D prim_to_cons(const Vec1D& prim);
 
         /* Calculate the conservative fluxes in the x-coordinate
          * direction from the conservative flow variables */
-        Vec1D cons_flux_x(const Vec1D& cons);
+        virtual Vec1D cons_flux_x(const Vec1D& cons);
 
         /* Calculate the conservative fluxes in the y-coordinate
          * direction from the conservative flow variables */
-        Vec1D cons_flux_y(const Vec1D& cons);
+        virtual Vec1D cons_flux_y(const Vec1D& cons);
         
     private:
 
