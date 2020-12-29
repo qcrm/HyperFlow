@@ -8,7 +8,7 @@
 #include "scheme/ode/ode/ode.h"
 #include "model/model/model.h"
 #include "scheme/riemann/riemann/riemann.h"
-#include "simulation/output/output.h"
+#include "simulation/output/data_output/data_output.h"
 #include "simulation/initcon/initcon/initcon.h"
 #include "mesh/mesh/mesh.h"
 #include "scheme/timestep/timestep.h"
@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     // Create the Parser object that obtains all values
     // from the JSON config files and creates the necessary
     // object instances for the simulation
-    JSONParser parser(model, config);
+    JSONParser parser(config);
 
     // Obtain initial parameters
     double cfl = parser.get_cfl();
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<Model> model = parser.generate_model();
 
     // Model data output
-    std::shared_ptr<DataOutput> data_output = parser.generate_data_output(model);
+    std::shared_ptr<DataOutput> data_output = parser.generate_data_output();
 
     // 2D Cartesian Mesh
     std::shared_ptr<Mesh> mesh = parser.generate_mesh();
@@ -52,10 +52,10 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<InitialCondition> initcon = parser.generate_initial_condition();
 
     // Riemann Solver
-    std::shared_ptr<RiemannSolver> riemann = parser.generate_riemann_solver(model);
+    std::shared_ptr<RiemannSolver> riemann = parser.generate_riemann_solver();
 
     // Time-step for explicit scheme
-    std::shared_ptr<TimeStep> time_step = parser.generate_time_step(model, cfl);
+    std::shared_ptr<TimeStep> time_step = parser.generate_time_step();
 
     // Spatial discretisation scheme
     std::shared_ptr<Scheme> scheme = parser.generate_spatial_scheme(model, riemann, time_step);

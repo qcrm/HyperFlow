@@ -12,7 +12,7 @@ Simulation::Simulation()
 /* Constructor with provided pointers to all flow solver entities */
 Simulation::Simulation(
     const std::shared_ptr<Model> _model,
-    const std::shared_ptr<EulerIdealGasDataOutput> _data_output,
+    const std::shared_ptr<DataOutput> _data_output,
     const std::shared_ptr<Mesh> _mesh,
     const std::shared_ptr<InitialCondition> _initial_condition,
     const std::shared_ptr<ODESolver> _ode_solver,
