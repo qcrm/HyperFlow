@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<TimeStep> time_step = parser.generate_time_step();
 
     // Spatial discretisation scheme
-    std::shared_ptr<Scheme> scheme = parser.generate_spatial_scheme(model, riemann, time_step);
+    std::shared_ptr<Scheme> scheme = parser.generate_spatial_scheme(model, riemann, time_step, mesh);
 
     // ODE Solver
     std::shared_ptr<ODESolver> ode_solver = parser.generate_ode_solver();
