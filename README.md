@@ -18,7 +18,9 @@ HyperFlow is developed by QCRM Ltd.
 
 # Schemes Implemented
 
-- Gounov First-Order Upwind: The well-known first-order scheme of Godunov for non-linear hyperbolic systems. The implementation currently makes use of Toro's HLLC approximate Riemann solver with forward Euler time integration.
+- *Gounov First-Order Upwind:* The well-known first-order scheme of Godunov for non-linear hyperbolic systems. The implementation currently makes use of Toro's HLLC approximate Riemann solver with forward Euler time integration in a dimensionally unsplit manner.
+
+- *MUSCL-Hancock:* A second-order 'predictor/corrector' [total-variational diminishing](https://en.wikipedia.org/wiki/Total_variation_diminishing) (TVD) [MUSCL](https://en.wikipedia.org/wiki/MUSCL_scheme)-based scheme of Van Leer and Hancock, using MINBEE or the Van Leer slope limiter to eliminate spurious oscillations. The implementation uses Toro's HLLC approximate Riemann solver with forward Euler time integration in a dimensionally unsplit manner.
 
 # Media
 
