@@ -23,6 +23,10 @@
 #include "../initcon/sphericalrp/sphericalrp.h"
 #include "../../scheme/riemann/riemann_hllc/riemann_hllc.h"
 #include "../../scheme/timestep/timestep.h"
+#include "../../scheme/limiter/limiter/limiter.h"
+#include "../../scheme/limiter/minbee/minbee.h"
+#include "../../scheme/limiter/vanleer/vanleer.h"
+#include "../../scheme/muscl_hancock/muscl_hancock.h"
 #include "../../scheme/godunov/godunov.h"
 #include "../../scheme/ode/forward_euler/forward_euler.h"
 #include "../output/euler_data_output/euler_data_output.h"
@@ -93,7 +97,8 @@ class JSONParser
         /* Create the spatial discretisation scheme */
         std::shared_ptr<Scheme> generate_spatial_scheme(const std::shared_ptr<Model>& model,
                                                         const std::shared_ptr<RiemannSolver>& riemann,
-                                                        const std::shared_ptr<TimeStep>& time_step);
+                                                        const std::shared_ptr<TimeStep>& time_step,
+                                                        const std::shared_ptr<Mesh>& mesh);
 
         /* Create ordinary differential equation time integrator */
         std::shared_ptr<ODESolver> generate_ode_solver(); 

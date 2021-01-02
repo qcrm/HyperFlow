@@ -214,13 +214,29 @@ std::shared_ptr<TimeStep> JSONParser::generate_time_step()
 /* Create the spatial discretisation scheme */
 std::shared_ptr<Scheme> JSONParser::generate_spatial_scheme(const std::shared_ptr<Model>& model,
                                                             const std::shared_ptr<RiemannSolver>& riemann,
-                                                            const std::shared_ptr<TimeStep>& time_step)
+                                                            const std::shared_ptr<TimeStep>& time_step,
+                                                            const std::shared_ptr<Mesh>& mesh)
 {
     std::shared_ptr<Scheme> scheme = nullptr;
 
     std::string scheme_type = config["scheme"]["type"];
     if (scheme_type == "Godunov") {
         scheme = std::make_shared<GodunovScheme>(model, riemann, time_step);
+    } else if (scheme_type == "MUSCLHancock") {
+        std::string limiter_type = config["scheme"]["limiter"];
+
+        std::shared_ptr<Limiter> limiter = nullptr;
+
+        if (limiter_type == "MinBee") {
+            limiter = std::make_shared<MinBeeLimiter>(0.0, 1.0, 1.0, 1e-6);
+        } else if (limiter_type == "VanLeer") {
+            limiter = std::make_shared<VanLeerLimiter>(0.0, 1.0, 1.0, 1e-6);
+        } else {
+            std::cout << "Limiter type '" << limiter_type << "' not supported. Exiting." << std::endl;
+            return 0;
+        }
+
+        scheme = std::make_shared<MUSCLHancockScheme>(model, riemann, time_step, limiter, mesh);
     } else {
         std::cout << "Scheme type '" << scheme_type << "' not supported. Returning null scheme." << std::endl;
     }
@@ -254,8 +270,36 @@ std::shared_ptr<MeshBlock> JSONParser::generate_mesh_block(json& sub_config)
 
     unsigned int x_cells = sub_config["x_cells"];
     unsigned int y_cells = sub_config["y_cells"];
-    unsigned int ghost_cells = 1;  // TODO: Currently hardcoded to Godunov first-order upwind
-    unsigned int dimension = 4;  // TODO: Currently hardcoded to Euler equations
+
+    // Set the number of ghost cells depending upon the scheme
+    unsigned int ghost_cells = 1;
+    std::string scheme_type = config["scheme"]["type"];
+    if (scheme_type == "Godunov") {
+        ghost_cells = 1;
+    } else if (scheme_type == "MUSCLHancock") {
+        ghost_cells = 2;
+    } else {
+        std::cout << "Scheme type '"
+                  << scheme_type 
+                  << "' not supported. Number of ghost cells (" 
+                  << ghost_cells 
+                  << ") may be incorrect." 
+                  << std::endl;
+    }
+
+    // Set the dimension of the mesh depending upon the equation system
+    unsigned int dimension = 4;
+    std::string model_type = config["model"]["model"];
+    if (model_type == "EulerIdealGas") {
+        dimension = 4;
+    } else {
+        std::cout << "Model type '" 
+                  << model_type
+                  << "' not supported. Number of mesh dimensions ("
+                  << dimension 
+                  << ")may be incorrect."
+                  << std::endl;
+    }
     
     std::shared_ptr<MeshBlock> mb = std::make_shared<MeshBlock>(
         extents, x_cells, y_cells, ghost_cells, dimension

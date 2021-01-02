@@ -1,0 +1,72 @@
+{
+    "model": {
+        "model": "EulerIdealGas",
+        "gamma": 1.4
+    },
+    "mesh": {
+        "blocks": [
+            {
+                "extents": {
+                    "x_left": 0.0,
+                    "x_right": 1.0,
+                    "y_bottom": 0.0,
+                    "y_top": 1.0
+                },
+                "boundaries": {
+                    "left": {
+                        "type": "Reflective"
+                    },
+                    "right": {
+                        "type": "Reflective"
+                    },
+                    "bottom": {
+                        "type": "Reflective"
+                    },
+                    "top": {
+                        "type": "Reflective"
+                    }
+                },
+                "x_cells": 50,
+                "y_cells": 50
+            }
+        ]
+    },
+    "domain": {
+        "x_left": 0.0,
+        "x_right": 1.0,
+        "y_bottom": 0.0,
+        "y_top": 1.0,
+        "boundaries": [
+            [
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [1.0, 1.0],
+                [0.0, 1.0]
+            ]
+        ]
+    },
+    "initial_condition": {
+        "type": "SphericalRiemannProblem",
+        "radius": 0.25,
+        "x_origin": 0.4,
+        "y_origin": 0.4,
+        "variables": "Primitive",
+        "init_sphere_state": [1.0, 0.0, 0.0, 100.0],
+        "init_ext_state": [1.0, 0.0, 0.0, 1.0]
+    },
+    "scheme": {
+        "type": "MUSCLHancock",
+        "limiter": "VanLeer",
+        "riemann": "HLLCEuler",
+        "ode": "ForwardEuler"
+    },
+    "simulation": {
+        "cfl": 0.5,
+        "t_start": 0.0,
+        "t_end": 0.5,
+        "animation": {
+            "duration": 10.0,
+            "fps": 60.0
+        }
+    }
+}
