@@ -11,6 +11,9 @@ SOURCE := $(CODE_SRC)main.cpp \
 		$(CODE_SRC)scheme/boundary/reflective/reflective_boundary.cpp \
 		$(CODE_SRC)scheme/boundary/internal/internal_boundary.cpp \
 		$(CODE_SRC)scheme/boundary/boundary/boundary.cpp \
+		$(CODE_SRC)scheme/limiter/vanleer/vanleer.cpp \
+		$(CODE_SRC)scheme/limiter/minbee/minbee.cpp \
+		$(CODE_SRC)scheme/limiter/limiter/limiter.cpp \
 		$(CODE_SRC)scheme/godunov/godunov.cpp \
 		$(CODE_SRC)scheme/ode/forward_euler/forward_euler.cpp \
 		$(CODE_SRC)scheme/ode/ode/ode.cpp \
