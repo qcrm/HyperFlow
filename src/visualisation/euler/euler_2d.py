@@ -26,9 +26,18 @@ RESULTS_FILE_HEADER_ROWS = 8  # Number of rows of meta data in results files
 
 def extract_figsize(figsize):
     """
+    Extracts the figure size in inches (at 100 dpi) from the
+    comma-separated string of floats.
 
     Parameters
     ----------
+    figsize : `str`
+        The comma-separated string of floats, e.g. '8,8'
+
+    Returns
+    -------
+    `tuple(float)`
+        The extracted two-tuple of floats, e.g. (8.0, 8.0)
     """
     try:
         figsize_tup = tuple(map(float, figsize.split(',')))
@@ -41,9 +50,18 @@ def extract_figsize(figsize):
 
 def extract_limits(limits):
     """
+    Extracts the range of the flow variable to clip the plotting
+    to from the comma-separated string of floats.
 
     Parameters
     ----------
+    figsize : `str`
+        The comma-separated string of floats, e.g. '0.0,5.0'
+
+    Returns
+    -------
+    `tuple(float)`
+        The extracted two-tuple of floats, e.g. (0.0, 5.0)
     """    
     if limits is None:
         return None
@@ -59,9 +77,22 @@ def extract_limits(limits):
 
 def extract_cells(cells):
     """
+    Extracts the number of cells in each of the x and y directions
+    for the total domain extent from the comma-separated
+    string of ints.
+
+    This is used to plot the entire encompassing area of the domain,
+    even if it is comprised of multiple individual blocks.
 
     Parameters
     ----------
+    figsize : `str`
+        The comma-separated string of ints, e.g. '100,100'
+
+    Returns
+    -------
+    `tuple(int)`
+        The extracted two-tuple of ints, e.g. (100, 100)
     """    
     try:
         cells_tup = tuple(map(int, cells.split(',')))
@@ -74,9 +105,17 @@ def extract_cells(cells):
 
 def load_sim_json_dict(sim_json):
     """
+    Loads the simulation JSON file and parses it.
 
     Parameters
     ----------
+    sim_json : `str`
+        The filepath to the simulation JSON file.
+
+    Returns
+    -------
+    `dict`
+        The dictionary representing the simulation specification.
     """
     if sim_json is None:
         raise ValueError(
@@ -86,9 +125,18 @@ def load_sim_json_dict(sim_json):
 
 def load_results_names(results_dir):
     """
+    Loads all of the results files in a particular directory
+    and sorts them.
 
     Parameters
     ----------
+    results_dir : `str`
+        The results directory string.
+
+    Returns
+    -------
+    `list[str]`
+        The list of all the results files in the results directory.
     """
     return sorted(
         [
@@ -165,10 +213,7 @@ class EulerBlockStructuredVisualisation2D(object):
 
     def _normalised_gradient_exponential_schlieren(
         self,
-        flow_data,
-        x_cells,
-        y_cells,
-        extents
+        flow_data
     ):
         """
         Calculate a 'schlieren-like' normalised exponentiated gradient
@@ -180,13 +225,7 @@ class EulerBlockStructuredVisualisation2D(object):
         Parameters
         ----------
         flow_data : `numpy.array`
-            Multidimensional array of flow variable data by x, y coordinate
-        x_cells : `int`
-            Total number of cells (excluding ghost cells) in the x-direction
-        y_cells : `int`
-            Total number of cells (excluding ghost cells) in the y-direction
-        extents : `list`
-            Domain bounding box extents: [x_0, x_1, y_0, y_1]
+            Multidimensional array of flow variable data by x, y coordinates
         
         Returns
         -------
@@ -197,12 +236,12 @@ class EulerBlockStructuredVisualisation2D(object):
 
         # Calculate total domain width, height
         # NOTE: Assumes homogeneous dx, dy
-        width = extents[1] - extents[0]
-        height = extents[3] - extents[2]
+        width = self.extents[1] - self.extents[0]
+        height = self.extents[3] - self.extents[2]
         
         # Calculate domain step size in each direction
-        dx = width / x_cells 
-        dy = height / y_cells
+        dx = width / self.cells[0] 
+        dy = height / self.cells[1]
 
         # Pre-allocate normalised gradient schlieren array
         norm_grad = np.zeros(flow_data.shape)
@@ -259,9 +298,18 @@ class EulerBlockStructuredVisualisation2D(object):
         self
     ):
         """
+        Parses the JSON simulation file for the domain extents
+        and adds them to a list of floats for convenience.
 
         Parameters
         ----------
+        None
+
+        Returns
+        -------
+        `list[float]`
+            The list of coordinate extents of the enclosing domain.
+
         """
         domain = self.sim_json['domain']
         return [
@@ -276,9 +324,17 @@ class EulerBlockStructuredVisualisation2D(object):
         axis
     ):
         """
+        Turns off the plot axis so that the imshow call covers the
+        entire extent of the figure area.
 
         Parameters
         ----------
+        axis : `matplotlib.pyplot.axis`
+            The axis entity used to control the plot.
+
+        Returns
+        -------
+        None
         """
         axis.xaxis.set_major_locator(plt.NullLocator())
         axis.yaxis.set_major_locator(plt.NullLocator())
@@ -293,9 +349,23 @@ class EulerBlockStructuredVisualisation2D(object):
         y_coords
     ):
         """
+        Creates a figure and axis, then plots the data via a contour plot
+        or imshow depending upon the chosen plot type.
 
         Parameters
         ----------
+        frame_filepath : `str`
+            The full path to the output frame
+        flow_data : `numpy.array`
+            Multidimensional array of flow data
+        x_coords : `numpy.array`
+            Single-dimensional array of all cell-centre x-coordinate locations
+        y_coords : `numpy.array`
+            Single-dimensional array of all cell-centre y-coordinate locations
+
+        Returns
+        -------
+        None
         """
         fig, axis = plt.subplots(1, 1, figsize=(self.figsize[0], self.figsize[1]))
         
@@ -332,6 +402,11 @@ class EulerBlockStructuredVisualisation2D(object):
         results
     ):
         """
+        Iterates through all of the result file names and generates
+        a single frame for each file.
+
+        The flow variable can itself be plotted or its schlieren/gradient
+        with either a full 'imshow' or as a filled contour plot.
 
         Parameters
         ----------
@@ -339,21 +414,28 @@ class EulerBlockStructuredVisualisation2D(object):
         for frame_idx, result_file in enumerate(results):
             print("Plotting Frame %06d..." % frame_idx)
             
+            # Obtain the full file paths to the frame output and results data
             frame_filepath = os.path.join(self.output_dir, 'frame_%06d.png' % frame_idx)
             sim_filepath = os.path.join(self.results_dir, result_file)
 
+            # Skip all of the meta data when loading the results file
             sim_data = pd.read_csv(sim_filepath, skiprows=RESULTS_FILE_HEADER_ROWS).dropna()
             
             x = sim_data['x'].to_numpy()
             y = sim_data['y'].to_numpy()
             sim_data = sim_data.set_index(['x', 'y'])      
 
+            # Obtain arrays of the unique cell-centre x and y coordinates
             x_coords = np.array(sim_data.index.levels[0].unique())
             y_coords = np.array(sim_data.index.levels[1].unique())
             sim_data = sim_data.reindex(itertools.product(x_coords, y_coords))
 
-            flow_data = sim_data[self.flow_var.replace('-gradient', '')].values.reshape(self.cells[0], self.cells[1])
+            # Reshape the data frame into the appropriate format for plotting
+            flow_data = sim_data[
+                self.flow_var.replace('-gradient', '')
+            ].values.reshape(self.cells[0], self.cells[1])
 
+            # Plot the schlieren-like gradient plot
             if '-gradient' in self.flow_var:
                 flow_data = self._normalised_gradient_exponential_schlieren(
                     flow_data, self.cells[0], self.cells[1], self.extents
