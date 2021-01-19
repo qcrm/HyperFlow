@@ -437,9 +437,7 @@ class EulerBlockStructuredVisualisation2D(object):
 
             # Plot the schlieren-like gradient plot
             if '-gradient' in self.flow_var:
-                flow_data = self._normalised_gradient_exponential_schlieren(
-                    flow_data, self.cells[0], self.cells[1], self.extents
-                )
+                flow_data = self._normalised_gradient_exponential_schlieren(flow_data)
             
             self._plot_frame(
                 frame_filepath,
