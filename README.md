@@ -1,5 +1,7 @@
 # HyperFlow
 
+![Type3 shock-expansion interaction density gradient](https://github.com/qcrm/HyperFlow/blob/master/media/readme-screenshot.png?raw=true)
+
 HyperFlow is a C++11-based open source modular research framework for the computation of two-dimensional numerical solutions to [hyperbolic conservation laws](https://en.wikipedia.org/wiki/Hyperbolic_partial_differential_equation#Hyperbolic_system_and_conservation_laws).
 
 It implements various [high-resolution schemes](https://en.wikipedia.org/wiki/High-resolution_scheme) via the [finite volume method](https://en.wikipedia.org/wiki/Finite_volume_method). The [method of lines](https://en.wikipedia.org/wiki/Method_of_lines) is used to separate spatial and temporal derivative discretisation.
