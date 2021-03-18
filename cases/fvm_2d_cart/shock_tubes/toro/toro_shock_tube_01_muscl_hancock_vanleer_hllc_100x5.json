@@ -1,0 +1,73 @@
+{
+    "model": {
+        "model": "EulerIdealGas",
+        "gamma": 1.4
+    },
+    "mesh": {
+        "blocks": [
+            {
+                "extents": {
+                    "x_left": 0.0,
+                    "x_right": 1.0,
+                    "y_bottom": 0.0,
+                    "y_top": 0.05
+                },
+                "boundaries": {
+                    "left": {
+                        "type": "Transmissive"
+                    },
+                    "right": {
+                        "type": "Transmissive"
+                    },
+                    "bottom": {
+                        "type": "Reflective"
+                    },
+                    "top": {
+                        "type": "Reflective"
+                    }
+                },
+                "x_cells": 100,
+                "y_cells": 5
+            }
+        ]
+    },
+    "domain": {
+        "x_left": 0.0,
+        "x_right": 1.0,
+        "y_bottom": 0.0,
+        "y_top": 0.05,
+        "boundaries": [
+            [
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [1.0, 0.05],
+                [0.0, 0.05]
+            ]
+        ]
+    },
+    "initial_condition": {
+        "type": "QuadRiemannProblem",
+        "x_interface": 0.3,
+        "y_interface": 0.025,
+        "variables": "Primitive",
+        "init_ne_state": [0.125, 0.0, 0.0, 0.1],
+        "init_nw_state": [1.0, 0.75, 0.0, 1.0],
+        "init_sw_state": [1.0, 0.75, 0.0, 1.0],
+        "init_se_state": [0.125, 0.0, 0.0, 0.1]
+    },
+    "scheme": {
+        "type": "MUSCLHancock",
+        "limiter": "VanLeer",
+        "riemann": "HLLCEuler",
+        "ode": "ForwardEuler"
+    },
+    "simulation": {
+        "cfl": 0.5,
+        "t_start": 0.0,
+        "t_end": 0.2,
+        "animation": {
+            "duration": 1.0,
+            "fps": 30.0
+        }
+    }
+}
