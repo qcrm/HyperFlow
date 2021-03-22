@@ -13,6 +13,7 @@ SOURCE := $(CODE_SRC)main.cpp \
 		$(CODE_SRC)scheme/timestep/timestep.cpp \
 		$(CODE_SRC)mesh/mesh_structured/mesh_structured.cpp \
 		$(CODE_SRC)mesh/mesh/mesh.cpp \
+		$(CODE_SRC)simulation/initcon/sphericalrp/sphericalrp.cpp \
 		$(CODE_SRC)simulation/initcon/constant/constant.cpp \
 		$(CODE_SRC)simulation/initcon/initcon/initcon.cpp \
 		$(CODE_SRC)model/euler_ideal_gas/euler_ideal_gas.cpp \

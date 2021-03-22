@@ -11,6 +11,7 @@
 #include "simulation/output/output.h"
 #include "simulation/initcon/initcon/initcon.h"
 #include "simulation/initcon/constant/constant.h"
+#include "simulation/initcon/sphericalrp/sphericalrp.h"
 #include "mesh/mesh/mesh.h"
 #include "mesh/mesh_structured/mesh_structured.h"
 #include "scheme/timestep/timestep.h"
@@ -97,6 +98,28 @@ int main(int argc, char* argv[]) {
 
         initcon = std::make_shared<ConstantInitialCondition>(
             x_left, x_right, y_bottom, y_top, t_start, t_end, init_state
+        );
+    }  else if (initial_condition_type == "SphericalRiemannProblem") {
+        double radius = config["initial_condition"]["radius"];
+        double x_origin = config["initial_condition"]["x_origin"];
+        double y_origin = config["initial_condition"]["y_origin"];
+
+        Vec1D init_sphere_state;
+        Vec1D init_ext_state;
+        
+        for (auto& elem : config["initial_condition"]["init_sphere_state"]) {
+            init_sphere_state.push_back(elem);
+        }
+        for (auto& elem : config["initial_condition"]["init_ext_state"]) {
+            init_ext_state.push_back(elem);
+        }
+
+        init_sphere_state = model->prim_to_cons(init_sphere_state);
+        init_ext_state = model->prim_to_cons(init_ext_state);
+
+        initcon = std::make_shared<SphericalRiemannProblemInitialCondition>(
+            x_left, x_right, y_bottom, y_top, radius, x_origin, y_origin,
+            t_start, t_end, init_sphere_state, init_ext_state
         );
     } else {
         std::cout << "Initial condition '" << initial_condition_type << "' not supported. Exiting." << std::endl;
