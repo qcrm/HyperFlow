@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "../../model/euler_ideal_gas/euler_ideal_gas.h"
+#include "../../mesh/cell/cell.h"
 #include "../../mesh/mesh/mesh.h"
 
 namespace HyperFlow {

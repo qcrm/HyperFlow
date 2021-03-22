@@ -157,7 +157,7 @@ const bool Edge::is_axis_aligned()
 /* Calculate the midpoint coordinates of the edge */ 
 Vec1D Edge::calculate_midpoint()
 {
-    Vec1D midpoint {(end.x + start.x) / 2.0, (end.y + start.y) / 2.0};
+    Vec1D midpoint {(end[0] + start[0]) / 2.0, (end[1] + start[1]) / 2.0};
     return midpoint;
 }
 
@@ -166,8 +166,8 @@ Vec1D Edge::calculate_point_vector()
 {
     Vec1D p = end - start;
     Vec1D v(2);
-    v[0] = p.x;
-    v[1] = p.y;
+    v[0] = p[0];
+    v[1] = p[1];
     return v;
 }
 
