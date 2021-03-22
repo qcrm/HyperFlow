@@ -41,6 +41,24 @@ void Mesh::set_cells_flow_values(const Vec2D& cell_values)
     }
 }
 
+/* Get the full edge vector */
+EdgeVec1D& Mesh::get_edges()
+{
+    return edges;
+}
+
+/* Get the full cell vector */
+CellVec1D& Mesh::get_cells()
+{
+    return cells;
+}
+
+/* Get the full cell edge indices vector */
+std::vector<std::vector<int> >& Mesh::get_cell_edge_indices()
+{
+    return cell_edge_indices;
+}
+
 /* Initialise field values */
 void Mesh::initialise_field_values(const std::shared_ptr<InitialCondition>& init_con)
 {

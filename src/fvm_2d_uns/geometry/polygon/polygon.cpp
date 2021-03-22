@@ -67,6 +67,33 @@ Vec1D& Polygon::get_centroid()
     return centroid;
 }
 
+/* Obtain the radius of an incircle of the Polygon
+ * assuming it has three or four sides */
+double Polygon::radius_incircle()
+{
+    if (num_edges == 3) {
+        double a = edge_areas[0];
+        double b = edge_areas[1];
+        double c = edge_areas[2];
+
+        double s = (a + b + c) / 2.0;
+        double num = s * (s - a) * (s - b) * (s - c);
+        return sqrt(num) / s;
+    } else if (num_edges == 4) {
+        double shortest_edge = 1e16;
+
+        for (unsigned int edge_idx=0; edge_idx<edge_areas.size(); edge_idx++) {
+            shortest_edge = std::min(edge_areas[edge_idx], shortest_edge);
+        }
+
+        return shortest_edge;
+    } else {
+        std::cout << "Unable to calculate radius of incircle since number of sides is unequal to 3 or 4." << std::endl;
+        throw "Unable to calculate radius of incircle since number of sides is unequal to 3 or 4.";
+    }
+}
+
+
 /* Obtain the minimum cartesian bounding box as a polygon */
 Polygon Polygon::minimum_cartesian_bounding_box() const
 {

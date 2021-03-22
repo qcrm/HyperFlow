@@ -33,6 +33,15 @@ class Mesh {
         /* Set the flow values for all cells */
         void set_cells_flow_values(const Vec2D& cell_values);
 
+        /* Get the full edge vector */
+        EdgeVec1D& get_edges();
+
+        /* Get the full cell vector */
+        CellVec1D& get_cells();
+
+        /* Get the full cell edge indices vector */
+        std::vector<std::vector<int> >& get_cell_edge_indices();
+
     private:
 
         /* The vector of all edges */

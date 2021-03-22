@@ -45,6 +45,10 @@ public:
     /* Get the centroid coordinates of the polygon */
     Vec1D& get_centroid();
 
+    /* Obtain the radius of an incircle of the Polygon
+     * assuming it has three or four sides */
+    double radius_incircle();
+ 
     /* Obtain the minimum cartesian bounding box as a polygon */
     Polygon minimum_cartesian_bounding_box() const;
 
