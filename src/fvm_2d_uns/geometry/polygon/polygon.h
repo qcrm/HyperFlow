@@ -10,7 +10,7 @@
 
 namespace HyperFlow {
 
-class Polygoni
+class Polygon
 {
 
 public:
@@ -87,5 +87,7 @@ protected:
     Vec1D calculate_centroid();
 
 };
+
+}
 
 #endif
