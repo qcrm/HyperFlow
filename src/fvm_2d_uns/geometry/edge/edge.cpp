@@ -34,6 +34,48 @@ Edge::Edge(const Vec1D& _start,
 Edge::~Edge()
 {}
 
+/* Are two edges equal? */
+bool Edge::operator==(const Edge& rhs)
+{
+    double rhs_start_x = rhs.get_start()[0];
+    double rhs_start_y = rhs.get_start()[1];
+
+    double rhs_end_x = rhs.get_end()[0];
+    double rhs_end_y = rhs.get_end()[1];
+
+    if (
+        (fabs(rhs_start_x - start[0]) < tol) &&
+        (fabs(rhs_start_y - start[1]) < tol) &&
+        (fabs(rhs_end_x - end[0]) < tol) &&
+        (fabs(rhs_end_y - end[1]) < tol)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/* Are two edges equal in 'opposite' direction? */
+bool Edge::opposite_edges_equal(const Edge& rhs)
+{
+    double rhs_start_x = rhs.get_start()[0];
+    double rhs_start_y = rhs.get_start()[1];
+
+    double rhs_end_x = rhs.get_end()[0];
+    double rhs_end_y = rhs.get_end()[1];
+
+    if (
+        (fabs(rhs_start_x - end[0]) < tol) &&
+        (fabs(rhs_start_y - end[1]) < tol) &&
+        (fabs(rhs_end_x - start[0]) < tol) &&
+        (fabs(rhs_end_y - start[1]) < tol)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /* Get starting point of edge */ 
 const Vec1D& Edge::get_start() const
 {

@@ -23,6 +23,12 @@ public:
     /* Destructor */
     virtual ~Edge();
 
+    /* Are two edges equal? */
+    bool operator==(const Edge& rhs);
+
+    /* Are two edges equal in 'opposite' direction? */
+    bool opposite_edges_equal(const Edge& rhs);
+
     /* Get starting point of edge */
     const Vec1D& get_start() const;
 
