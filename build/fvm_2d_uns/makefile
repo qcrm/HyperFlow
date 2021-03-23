@@ -5,6 +5,7 @@ SOURCE := $(CODE_SRC)main.cpp \
 		$(CODE_SRC)simulation/simulation/simulation.cpp \
 		$(CODE_SRC)simulation/output/output.cpp \
 		$(CODE_SRC)scheme/godunov/godunov.cpp \
+		$(CODE_SRC)scheme/boundary/boundary.cpp \
 		$(CODE_SRC)scheme/ode/forward_euler/forward_euler.cpp \
 		$(CODE_SRC)scheme/ode/ode/ode.cpp \
 		$(CODE_SRC)scheme/riemann/riemann_hllc/riemann_hllc.cpp \

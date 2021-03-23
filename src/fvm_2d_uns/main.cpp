@@ -16,6 +16,7 @@
 #include "mesh/mesh_structured/mesh_structured.h"
 #include "scheme/timestep/timestep.h"
 #include "scheme/scheme/scheme.h"
+#include "scheme/boundary/boundary.h"
 #include "scheme/godunov/godunov.h"
 #include "scheme/ode/ode/ode.h"
 #include "scheme/ode/forward_euler/forward_euler.h"
@@ -133,12 +134,21 @@ int main(int argc, char* argv[]) {
     // Scheme
     // ======
     auto time_step = std::make_shared<TimeStep>(model, cfl);
+	std::shared_ptr<Vec1D> inlet_values = nullptr;
+
+	Vec1D init_inlet_values;
+	for (auto& elem : config["mesh"]["boundaries"]["inlet"]) {
+		init_inlet_values.push_back(elem);
+	}
+	init_inlet_values = model->prim_to_cons(init_inlet_values);
+	inlet_values = std::make_shared<Vec1D>(init_inlet_values);
+    
+    auto bcs = std::make_shared<BoundaryConditions>(inlet_values);
 
     std::string scheme_type = config["scheme"]["type"];
-
     std::shared_ptr<Scheme> scheme = nullptr;
     if (scheme_type == "Godunov") {
-        scheme = std::make_shared<GodunovScheme>(model, riemann, mesh);
+        scheme = std::make_shared<GodunovScheme>(model, riemann, bcs, mesh);
     } else {
         std::cout << "Scheme type '" << scheme_type << "' not supported. Exiting." << std::endl;
         return 0;

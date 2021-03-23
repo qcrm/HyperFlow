@@ -14,10 +14,12 @@ GodunovScheme::GodunovScheme()
 GodunovScheme::GodunovScheme(
     const std::shared_ptr<Model> _model,
     const std::shared_ptr<RiemannSolver> _riemann,
+    const std::shared_ptr<BoundaryConditions> _bcs,
     std::shared_ptr<Mesh> _mesh)
 :
     model(_model),
     riemann(_riemann),
+    bcs(_bcs),
     mesh(_mesh)
 {}
 
@@ -39,10 +41,10 @@ Vec2D GodunovScheme::operator()()
         Cell cell = mesh->get_cells()[cell_idx];
         
         Cell nbrc;
-        if (nbrc_idx == -1) {  // Solid
-            nbrc = cell;
-        } else if (nbrc_idx == -2) {  // Transmissive
-            nbrc = cell;
+        if (nbrc_idx < 0) {
+            BoundaryCondition bc = static_cast<BoundaryCondition>(nbrc_idx);
+            Vec1D nbrc_flow_vals = bcs->calculate_boundary_condition(bc, cell);
+            nbrc.set_flow_values(nbrc_flow_vals);
         } else {
             nbrc = mesh->get_cells()[nbrc_idx];
         }

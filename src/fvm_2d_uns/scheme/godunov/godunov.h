@@ -9,6 +9,7 @@
 #include "../../scheme/riemann/riemann/riemann.h"
 #include "../../mesh/mesh/mesh.h"
 #include "../scheme/scheme.h"
+#include "../boundary/boundary.h"
 
 namespace HyperFlow {
 
@@ -26,6 +27,7 @@ public:
     GodunovScheme(
         const std::shared_ptr<Model> _model,
         const std::shared_ptr<RiemannSolver> _riemann,
+        const std::shared_ptr<BoundaryConditions> _bcs,
         std::shared_ptr<Mesh> _mesh
     );
 
@@ -38,6 +40,7 @@ public:
 private:
     std::shared_ptr<Model> model;
     std::shared_ptr<RiemannSolver> riemann;
+    std::shared_ptr<BoundaryConditions> bcs;
     std::shared_ptr<Mesh> mesh;
 
 };
