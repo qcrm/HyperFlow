@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 	init_inlet_values = model->prim_to_cons(init_inlet_values);
 	inlet_values = std::make_shared<Vec1D>(init_inlet_values);
     
-    auto bcs = std::make_shared<BoundaryConditions>(inlet_values);
+    auto bcs = std::make_shared<BoundaryConditions>(model, inlet_values);
 
     std::string scheme_type = config["scheme"]["type"];
     std::shared_ptr<Scheme> scheme = nullptr;

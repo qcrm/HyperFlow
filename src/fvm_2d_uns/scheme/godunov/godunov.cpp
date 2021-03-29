@@ -39,28 +39,23 @@ Vec2D GodunovScheme::operator()()
         int edge_idx = mesh->get_cell_edge_indices()[cell_edge_idx][2];
 
         Cell cell = mesh->get_cells()[cell_idx];
+        Edge edge = mesh->get_edges()[edge_idx];
+        double normal_angle = edge.get_outward_normal_angle();
         
         Cell nbrc;
         if (nbrc_idx < 0) {
             BoundaryCondition bc = static_cast<BoundaryCondition>(nbrc_idx);
-            Vec1D nbrc_flow_vals = bcs->calculate_boundary_condition(bc, cell);
+            Vec1D nbrc_flow_vals = bcs->calculate_boundary_condition(bc, cell, normal_angle);
             nbrc.set_flow_values(nbrc_flow_vals);
         } else {
             nbrc = mesh->get_cells()[nbrc_idx];
         }
-        Edge edge = mesh->get_edges()[edge_idx];
-
-        double normal_angle = edge.get_outward_normal_angle();
 
         Vec1D cell_values = cell.get_flow_values();
         Vec1D nbrc_values = nbrc.get_flow_values();
 
         Vec1D rot_cell_values = model->rotate_flow_values(normal_angle, cell_values);
         Vec1D rot_nbrc_values = model->rotate_flow_values(normal_angle, nbrc_values);
-
-        if (nbrc_idx == -1) {
-            rot_nbrc_values[1] *= -1.0;
-        }
 
         Vec1D rot_flux = riemann->operator()(rot_cell_values, rot_nbrc_values, Direction::x);
         Vec1D flux = model->rotate_flow_values(-1.0 * normal_angle, rot_flux);
