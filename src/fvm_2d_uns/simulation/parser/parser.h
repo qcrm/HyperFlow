@@ -19,7 +19,8 @@
 #include "../../scheme/timestep/timestep.h"
 #include "../../scheme/godunov/godunov.h"
 #include "../../scheme/ode/forward_euler/forward_euler.h"
-#include "../../simulation/output/output.h"
+#include "../output/data_output/data_output.h"
+#include "../output/euler_data_output/euler_data_output.h"
 
 using json = nlohmann::json;
 
@@ -70,7 +71,7 @@ class JSONParser
         std::shared_ptr<Model> generate_model();
 
         /* Create model data output */
-        std::shared_ptr<EulerIdealGasDataOutput> generate_data_output();
+        std::shared_ptr<DataOutput> generate_data_output();
 
         /* Create mesh */
         std::shared_ptr<Mesh> generate_mesh();

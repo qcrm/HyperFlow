@@ -24,8 +24,6 @@ class SphericalRiemannProblemInitialCondition
                                                 const double _radius,
                                                 const double _x_origin,
                                                 const double _y_origin,
-                                                const double _t_start,
-                                                const double _t_end,
                                                 const Vec1D& _cons_sphere_state,
                                                 const Vec1D& _cons_ext_state);
             

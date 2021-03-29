@@ -4,7 +4,7 @@
 #include <iostream>
 #include <time.h>
 
-#include "../output/output.h"
+#include "../output/data_output/data_output.h"
 #include "../initcon/initcon/initcon.h"
 #include "../../model/model/model.h"
 #include "../../scheme/riemann/riemann/riemann.h"
@@ -25,7 +25,7 @@ class Simulation
         
         /* Constructor with provided pointers to all flow solver entities */
         Simulation(const std::shared_ptr<Model> _model,
-                   const std::shared_ptr<EulerIdealGasDataOutput> _data_output,
+                   const std::shared_ptr<DataOutput> _data_output,
                    const std::shared_ptr<Mesh> _mesh,
                    const std::shared_ptr<InitialCondition> _initial_condition,
                    const std::shared_ptr<ODESolver> _ode_solver,
@@ -53,7 +53,7 @@ class Simulation
         std::shared_ptr<Model> model;
         
         /* Pointer to the data output */
-        std::shared_ptr<EulerIdealGasDataOutput> data_output;
+        std::shared_ptr<DataOutput> data_output;
         
         /* Pointer to the mesh */
         std::shared_ptr<Mesh> mesh;

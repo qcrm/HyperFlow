@@ -21,8 +21,6 @@ class InitialCondition
                          const double _x_right,
                          const double _y_bottom,
                          const double _y_top,
-                         const double _t_start,
-                         const double _t_end,
                          const unsigned int _dimension);
             
         /* Destructor */
@@ -44,12 +42,6 @@ class InitialCondition
         /* Obtain the top extent of the simulation */
         virtual double get_y_top();
         
-        /* Obtain the simualation start time */
-        virtual double get_t_start();
-        
-        /* Obtain the simulation end time */
-        virtual double get_t_end();
-        
         /* Obtain the dimensionality of the model system */
         virtual unsigned int get_dimension();
 
@@ -66,12 +58,6 @@ class InitialCondition
         
         /* Top extent of the simulation */
         double y_top;
-        
-        /* Start time of the simulation */
-        double t_start;
-        
-        /* End time of the simulation */
-        double t_end;
         
         /* Dimensionality of the model system */
         unsigned int dimension;

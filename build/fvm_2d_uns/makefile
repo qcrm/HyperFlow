@@ -4,7 +4,8 @@ INC_DIR := ../../include/
 SOURCE := $(CODE_SRC)main.cpp \
 		$(CODE_SRC)simulation/simulation/simulation.cpp \
 		$(CODE_SRC)simulation/parser/parser.cpp \
-		$(CODE_SRC)simulation/output/output.cpp \
+		$(CODE_SRC)simulation/output/euler_data_output/euler_data_output.cpp \
+		$(CODE_SRC)simulation/output/data_output/data_output.cpp \
 		$(CODE_SRC)scheme/godunov/godunov.cpp \
 		$(CODE_SRC)scheme/boundary/boundary.cpp \
 		$(CODE_SRC)scheme/ode/forward_euler/forward_euler.cpp \

@@ -115,7 +115,7 @@ std::shared_ptr<Model> JSONParser::generate_model()
 }
 
 /* Create model data output */
-std::shared_ptr<EulerIdealGasDataOutput> JSONParser::generate_data_output()
+std::shared_ptr<DataOutput> JSONParser::generate_data_output()
 {
     std::shared_ptr<EulerIdealGasDataOutput> data_output = nullptr;
 

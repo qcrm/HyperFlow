@@ -8,7 +8,7 @@
 #include "scheme/ode/ode/ode.h"
 #include "model/model/model.h"
 #include "scheme/riemann/riemann/riemann.h"
-#include "simulation/output/output.h"
+#include "simulation/output/data_output/data_output.h"
 #include "simulation/initcon/initcon/initcon.h"
 #include "mesh/mesh/mesh.h"
 #include "scheme/timestep/timestep.h"
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<Model> model = parser.generate_model();
 
     // Model data output
-    std::shared_ptr<EulerIdealGasDataOutput> data_output = parser.generate_data_output();
+    std::shared_ptr<DataOutput> data_output = parser.generate_data_output();
 
     // 2D Cartesian Mesh
     std::shared_ptr<Mesh> mesh = parser.generate_mesh();

@@ -19,8 +19,6 @@ SphericalRiemannProblemInitialCondition::SphericalRiemannProblemInitialCondition
     const double _radius,
     const double _x_origin,
     const double _y_origin,
-    const double _t_start,
-    const double _t_end,
     const Vec1D& _cons_sphere_state,
     const Vec1D& _cons_ext_state)
 :
@@ -28,8 +26,6 @@ SphericalRiemannProblemInitialCondition::SphericalRiemannProblemInitialCondition
                      _x_right,
                      _y_bottom,
                      _y_top,
-                     _t_start,
-                     _t_end,
                      _cons_sphere_state.size()),
     radius(_radius),
     x_origin(_x_origin),

@@ -14,16 +14,12 @@ InitialCondition::InitialCondition(const double _x_left,
                                    const double _x_right,
                                    const double _y_bottom,
                                    const double _y_top,
-                                   const double _t_start,
-                                   const double _t_end,
                                    const unsigned int _dimension)
 :
     x_left(_x_left),
     x_right(_x_right),
     y_bottom(_y_bottom),
     y_top(_y_top),
-    t_start(_t_start),
-    t_end(_t_end),
     dimension(_dimension)
 {}
 
@@ -66,18 +62,6 @@ double InitialCondition::get_y_bottom()
 double InitialCondition::get_y_top()
 {
     return y_top;
-}
-
-/* Obtain the simualation start time */
-double InitialCondition::get_t_start()
-{
-    return t_start;
-}
-
-/* Obtain the simulation end time */ 
-double InitialCondition::get_t_end()
-{
-    return t_end;
 }
 
 /* Obtain the dimensionality of the model system */ 

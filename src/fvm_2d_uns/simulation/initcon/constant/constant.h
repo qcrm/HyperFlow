@@ -20,8 +20,6 @@ class ConstantInitialCondition
                                  const double _x_right,
                                  const double _y_bottom,
                                  const double _y_top,
-                                 const double _t_start,
-                                 const double _t_end,
                                  const Vec1D& _cons_init_state);
             
         /* Destructor */

@@ -15,16 +15,12 @@ ConstantInitialCondition::ConstantInitialCondition(
     const double _x_right,
     const double _y_bottom,
     const double _y_top,
-    const double _t_start,
-    const double _t_end,
     const Vec1D& _cons_init_state)
 :
     InitialCondition(_x_left, 
                      _x_right,
                      _y_bottom,
                      _y_top,
-                     _t_start,
-                     _t_end,
                      _cons_init_state.size()),
     cons_init_state(_cons_init_state)
 {}
