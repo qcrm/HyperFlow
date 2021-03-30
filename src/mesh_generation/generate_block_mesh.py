@@ -52,21 +52,6 @@ class BlockStructuredMeshGenerator:
         """
         return json.load(open(self.block_json_file, 'r'))
 
-    def _convert_blocks_mm_to_m(self, blocks):
-        """
-        Convert all block coordinates from millimetres into metres.
-
-        Parameters
-        ----------
-        blocks : `dict`
-            The JSON-parsed dictionary comprising the block specifications.
-        """
-        for block in blocks:
-            for coord_pair in block['coordinates']:
-                coord_pair[0] /= 1000.0
-                coord_pair[1] /= 1000.0
-        return blocks
-
     def _xy_scale(self, block, eps, nu):
         """
         Map the cell in the unit square (itself with-1/+1 corners)
@@ -270,9 +255,7 @@ class BlockStructuredMeshGenerator:
         output_file : `string`
             The name of the output mesh file.
         """
-        blocks_mm = self._parse_block_json_file()
-        blocks = self._convert_blocks_mm_to_m(blocks_mm)
-
+        blocks = self._parse_block_json_file()
         cell_vertices_list, edge_boundary_list = self._discretise_domain_into_cells(blocks)
         self._output_mesh(output_file, cell_vertices_list, edge_boundary_list)
 
