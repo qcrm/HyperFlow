@@ -5,7 +5,7 @@
     },
     "mesh": {
         "type": "hyperflow_structured",
-        "file": "scramjet_kumar_coarse_mesh.hmsh",
+        "file": "kumar.hmsh",
         "extents": {
             "x_left": 0.0,
             "x_right": 3.9899,
@@ -46,6 +46,11 @@
                 [2.1998, 0.9861],
                 [3.3940, 1.1461],
                 [2.9410, 1.211]
+            ],
+            [
+                [0.0, 1.73],
+                [3.9899, 1.2636],
+                [3.9899, 1.73]
             ]
         ]
     },
