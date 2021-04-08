@@ -80,7 +80,6 @@ std::shared_ptr<Mesh> LoadStructuredMesh::load_structured_mesh()
 
     std::cout << "EDGE COUNT: " << edge_count << std::endl;
     std::vector<std::vector<int> > cell_edge_indices;
-    EdgeVec1D edges;
     std::vector<int> edge_types;
 
     while (std::getline(hmsh, str)) {
@@ -116,6 +115,7 @@ std::shared_ptr<Mesh> LoadStructuredMesh::load_structured_mesh()
 
     /* Generate edges */
     int outer_edge_idx = 0;
+    EdgeVec1D edges;
     for (int cell_idx=0; cell_idx<cells.size(); cell_idx++) {
         std::cout << "CELL INDEX " << cell_idx + 1 << " OF " << cells.size() << std::endl;
         unsigned int edge_size = cells[cell_idx].get_edges().size();

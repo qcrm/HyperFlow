@@ -199,11 +199,13 @@ class BlockStructuredMeshGenerator:
         cell_eps_idx,
         cell_nu_idx
     ):
+        edge_idx = cell_idx * 4
+
         # Default
-        south = [cell_idx, None, 0]
-        east = [cell_idx, None, 1]
-        north = [cell_idx, None, 2]
-        west = [cell_idx, None, 3]
+        south = [cell_idx, None, edge_idx]
+        east = [cell_idx, None, edge_idx + 1]
+        north = [cell_idx, None, edge_idx + 2]
+        west = [cell_idx, None, edge_idx + 3]
 
         # Cell indices for neighbour cells internally
         block_cell_idx = cell_eps_idx + cell_nu_idx * eps_cells
@@ -223,7 +225,7 @@ class BlockStructuredMeshGenerator:
             east[1] = block_offset_idx + block_cell_idx_e
             north[1] = block_offset_idx + block_cell_idx_n
             west[1] = block_offset_idx + block_cell_idx_w
-             
+
         # Append all the block information
         cell_neighbour_edge_list.append(south)
         cell_neighbour_edge_list.append(east)
@@ -251,26 +253,31 @@ class BlockStructuredMeshGenerator:
       
         num_surface_edges = len(surface_edge_list)
         for surface_outer_idx, outer_edges in enumerate(surface_edge_list):
-            print("SURFACE OUTER INDEX: %d of %d, %0.2f%%" % (surface_outer_idx + 1, num_surface_edges, float((surface_outer_idx + 1)*100.0 / num_surface_edges)))
-            for surface_inner_idx, inner_edges in enumerate(surface_edge_list):
+            print(
+                "SURFACE OUTER INDEX: %d of %d, %0.2f%%" % (
+                    surface_outer_idx + 1,
+                    num_surface_edges,
+                    float((surface_outer_idx + 1)*100.0 / num_surface_edges)
+                )
+            )
+            for surface_inner_idx, inner_edges in enumerate(cell_edge_list):
                 cell_outer_index = surface_cells_index[surface_outer_idx]
-                cell_inner_index = surface_cells_index[surface_inner_idx]
-                
+
                 # Does outer S equal inner N?
                 if outer_edges[0].opposite_edges_equal(inner_edges[2]):
-                    cell_neighbour_edge_list[cell_outer_index * 4][1] = cell_inner_index
+                    cell_neighbour_edge_list[cell_outer_index * 4][1] = surface_inner_idx
 
                 # Does outer E equal inner W?
                 if outer_edges[1].opposite_edges_equal(inner_edges[3]):
-                    cell_neighbour_edge_list[cell_outer_index * 4 + 1][1] = cell_inner_index
+                    cell_neighbour_edge_list[cell_outer_index * 4 + 1][1] = surface_inner_idx
 
                 # Does outer N equal inner S?
                 if outer_edges[2].opposite_edges_equal(inner_edges[0]):
-                    cell_neighbour_edge_list[cell_outer_index * 4 + 2][1] = cell_inner_index
+                    cell_neighbour_edge_list[cell_outer_index * 4 + 2][1] = surface_inner_idx
 
                 # Does outer W equal inner E?
                 if outer_edges[3].opposite_edges_equal(inner_edges[1]):
-                    cell_neighbour_edge_list[cell_outer_index * 4 + 3][1] = cell_inner_index
+                    cell_neighbour_edge_list[cell_outer_index * 4 + 3][1] = surface_inner_idx
 
         # Change all None's for boundary cells to -1
         for cell_info in cell_neighbour_edge_list:
