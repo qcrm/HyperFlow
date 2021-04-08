@@ -84,8 +84,34 @@ std::shared_ptr<Mesh> LoadStructuredMesh::load_structured_mesh()
     std::vector<int> edge_types;
 
     while (std::getline(hmsh, str)) {
+        if (str.compare("NEIGHBOURS") == 0) {
+            break;
+        }
+
         int edge_type = std::stoi(str, nullptr, 0);
         edge_types.push_back(edge_type);
+    }
+
+    /* Load in cell-neighbour information */
+    std::getline(hmsh, str);
+    unsigned int cell_neighbour_edge_count = std::stoul(str, nullptr, 0);
+
+    std::cout << "CELL NEIGHBOUR EDGE COUNT: " << edge_count << std::endl;
+
+    while (std::getline(hmsh, str)) {
+        std::istringstream iss(str);
+
+        std::vector<std::string> string_nums;
+        std::copy(std::istream_iterator<std::string>(iss),
+                  std::istream_iterator<std::string>(),
+                  std::back_inserter(string_nums));
+
+        int cell_idx = std::stod(string_nums[0]);
+        int neighbour_idx = std::stod(string_nums[1]);
+        int edge_idx = std::stod(string_nums[2]);
+
+        std::vector<int> cell_edge_idx = {cell_idx, neighbour_idx, edge_idx};
+        cell_edge_indices.push_back(cell_edge_idx);
     }
 
     /* Generate edges */
@@ -96,19 +122,6 @@ std::shared_ptr<Mesh> LoadStructuredMesh::load_structured_mesh()
 
         for (unsigned int edge_idx=0; edge_idx<edge_size; edge_idx++) {
             Edge edge = cells[cell_idx].get_edges()[edge_idx];
-            std::vector<int> cell_edge_idx = {cell_idx, edge_types[outer_edge_idx], outer_edge_idx};
-
-            for (unsigned int nbrc_idx=0; nbrc_idx<cells.size(); nbrc_idx++) {
-                unsigned int nbrc_edge_size = cells[nbrc_idx].get_edges().size();    
-
-                for (unsigned int nbrc_edge_idx=0; nbrc_edge_idx<nbrc_edge_size; nbrc_edge_idx++) {
-                    if (edge.opposite_edges_equal(cells[nbrc_idx].get_edges()[nbrc_edge_idx])) {
-                        cell_edge_idx[1] = nbrc_idx;
-                    }
-                }
-            }
-
-            cell_edge_indices.push_back(cell_edge_idx);
             edges.push_back(edge);
             outer_edge_idx++;
         }

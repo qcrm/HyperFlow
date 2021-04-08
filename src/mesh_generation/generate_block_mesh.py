@@ -3,6 +3,7 @@ import json
 
 import click
 import numpy as np
+import pandas as pd
 
 
 class BoundaryCondition(Enum):
@@ -14,6 +15,31 @@ class BoundaryCondition(Enum):
     SOLID = -1
     TRANSMISSIVE = -2
     INLET = -3
+
+
+class Edge:
+    """
+    """
+
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def __eq__(self, rhs):
+        """
+        """
+        return (
+            np.allclose(self.start, rhs.start) and
+            np.allclose(self.end, rhs.end)
+        )
+
+    def opposite_edges_equal(self, rhs):
+        """
+        """
+        return (
+            np.allclose(self.start, rhs.end) and
+            np.allclose(self.end, rhs.start)
+        )
 
 
 class BlockStructuredMeshGenerator:
@@ -162,6 +188,95 @@ class BlockStructuredMeshGenerator:
 
         return edge_boundary_indices
 
+    def _calculate_internal_neighbour_cells(
+        self,
+        cell_edge_list,
+        cell_neighbour_edge_list,
+        cell_idx,
+        block_offset_idx,
+        eps_cells,
+        nu_cells,
+        cell_eps_idx,
+        cell_nu_idx
+    ):
+        # Default
+        south = [cell_idx, None, 0]
+        east = [cell_idx, None, 1]
+        north = [cell_idx, None, 2]
+        west = [cell_idx, None, 3]
+
+        # Cell indices for neighbour cells internally
+        block_cell_idx = cell_eps_idx + cell_nu_idx * eps_cells
+        block_cell_idx_s = cell_eps_idx + (cell_nu_idx - 1) * eps_cells 
+        block_cell_idx_e = (cell_eps_idx + 1) + cell_nu_idx * eps_cells
+        block_cell_idx_n = cell_eps_idx + (cell_nu_idx + 1) * eps_cells
+        block_cell_idx_w = (cell_eps_idx - 1) + cell_nu_idx * eps_cells
+
+        # Only for internal blocks for now
+        if (
+            (cell_eps_idx > 0) and
+            (cell_nu_idx > 0) and
+            (cell_eps_idx < (eps_cells - 1)) and
+            (cell_nu_idx < (nu_cells - 1))
+        ):
+            south[1] = block_offset_idx + block_cell_idx_s
+            east[1] = block_offset_idx + block_cell_idx_e
+            north[1] = block_offset_idx + block_cell_idx_n
+            west[1] = block_offset_idx + block_cell_idx_w
+             
+        # Append all the block information
+        cell_neighbour_edge_list.append(south)
+        cell_neighbour_edge_list.append(east)
+        cell_neighbour_edge_list.append(north)
+        cell_neighbour_edge_list.append(west)
+
+    def _calculate_surface_neighbour_cells(
+        self,
+        cell_edge_list,
+        cell_neighbour_edge_list
+    ):
+        cell_df = pd.DataFrame(
+            cell_neighbour_edge_list,
+            columns=[
+                'CellIndex', 'NeighbourIndex', 'CellEdgeIndex'
+            ]
+        )
+        surface_cells_df = cell_df[np.isnan(cell_df['NeighbourIndex'])]
+        surface_cells_index = list(sorted(list(set(surface_cells_df['CellIndex']))))
+        
+        surface_edge_list = []
+        for i, edge_list in enumerate(cell_edge_list):
+            if i in surface_cells_index:
+                surface_edge_list.append(edge_list)
+      
+        num_surface_edges = len(surface_edge_list)
+        for surface_outer_idx, outer_edges in enumerate(surface_edge_list):
+            print("SURFACE OUTER INDEX: %d of %d, %0.2f%%" % (surface_outer_idx + 1, num_surface_edges, float((surface_outer_idx + 1)*100.0 / num_surface_edges)))
+            for surface_inner_idx, inner_edges in enumerate(surface_edge_list):
+                cell_outer_index = surface_cells_index[surface_outer_idx]
+                cell_inner_index = surface_cells_index[surface_inner_idx]
+                
+                # Does outer S equal inner N?
+                if outer_edges[0].opposite_edges_equal(inner_edges[2]):
+                    cell_neighbour_edge_list[cell_outer_index * 4][1] = cell_inner_index
+
+                # Does outer E equal inner W?
+                if outer_edges[1].opposite_edges_equal(inner_edges[3]):
+                    cell_neighbour_edge_list[cell_outer_index * 4 + 1][1] = cell_inner_index
+
+                # Does outer N equal inner S?
+                if outer_edges[2].opposite_edges_equal(inner_edges[0]):
+                    cell_neighbour_edge_list[cell_outer_index * 4 + 2][1] = cell_inner_index
+
+                # Does outer W equal inner E?
+                if outer_edges[3].opposite_edges_equal(inner_edges[1]):
+                    cell_neighbour_edge_list[cell_outer_index * 4 + 3][1] = cell_inner_index
+
+        # Change all None's for boundary cells to -1
+        for cell_info in cell_neighbour_edge_list:
+            if cell_info[1] is None:
+                cell_info[1] = -1
+         
     def _discretise_domain_into_cells(self, blocks):
         """
         Convert all blocks into individual cells with specified
@@ -180,7 +295,12 @@ class BlockStructuredMeshGenerator:
             boundary conditions integers list.
         """
         cell_vertices_list = []
+        cell_edge_list = []
+        cell_neighbour_edge_list = []
         edge_boundary_list = []
+
+        cell_idx = 0
+        block_offset_idx = 0
 
         for block in blocks:
             eps_cells = block['cells'][0]
@@ -199,22 +319,40 @@ class BlockStructuredMeshGenerator:
                     nu = cell_nu_idx * d_nu - 1.0
                     
                     # Append the cell (x, y) coordinates in physical space
-                    cell_vertices_list.append(
-                        self._calculate_cell_vertices(
-                            block, eps, nu, d_eps, d_nu
-                        )
+                    vertices = self._calculate_cell_vertices(
+                        block, eps, nu, d_eps, d_nu
                     )
-                    
+                    cell_vertices_list.append(vertices)
+                   
+                    # Append the cell Edges to the list
+                    cell_edge_list.append(
+                        [
+                            Edge(np.array(vertices[0]), np.array(vertices[1])),
+                            Edge(np.array(vertices[1]), np.array(vertices[2])),
+                            Edge(np.array(vertices[2]), np.array(vertices[3])),
+                            Edge(np.array(vertices[3]), np.array(vertices[0]))
+                        ]
+                    )
+
+                    # Calculate the internal neighbour cell edge linkage
+                    self._calculate_internal_neighbour_cells(
+                        cell_edge_list, cell_neighbour_edge_list, cell_idx, block_offset_idx,
+                        eps_cells, nu_cells, cell_eps_idx, cell_nu_idx
+                    )
+
                     # Append the cell boundary condition integers
                     edge_boundary_list.append(
                         self._calculate_edge_boundary_indices(
                             block['boundary_conditions'], eps_cells, nu_cells, cell_eps_idx, cell_nu_idx
                         )
                     )
+                    cell_idx += 1
 
-        return cell_vertices_list, edge_boundary_list
+            block_offset_idx += eps_cells * nu_cells
 
-    def _output_mesh(self, output_file, cell_vertices_list, edge_boundary_list):
+        return cell_vertices_list, cell_edge_list, cell_neighbour_edge_list, edge_boundary_list
+
+    def _output_mesh(self, output_file, cell_vertices_list, cell_neighbour_edge_list, edge_boundary_list):
         """
         Output the cell coordinates and edge boundary integers to disk.
 
@@ -224,10 +362,13 @@ class BlockStructuredMeshGenerator:
             The name of the output mesh file.
         cell_vertices_list : `list`
             The list of cell coordinates in physical (x, y) space.
+        cell_neighbour_edge_list : `list`
+            The list of cell to neighbour indices for a particular edge.
         edge_boundary_list : `list`
             The list of integers representing the cell boundary condition types.
         """
         with open(output_file, 'w') as outfile:
+       
             # Output the cell vertices for each cell
             outfile.write('CELLS\n')
             outfile.write('%d\n' % len(cell_vertices_list))
@@ -245,6 +386,12 @@ class BlockStructuredMeshGenerator:
                 for edge_index in edge_boundary_indices:
                     outfile.write("%d\n" % int(edge_index))
 
+            # Output the cell neighbours for each cell
+            outfile.write('NEIGHBOURS\n')
+            outfile.write('%d\n' % len(cell_neighbour_edge_list))
+            for cell_neighbours in cell_neighbour_edge_list:
+                outfile.write("%d %d %d\n" % tuple(cell_neighbours))
+
     def generate_mesh(self, output_file):
         """
         Generate and output the mesh file from the JSON
@@ -256,8 +403,12 @@ class BlockStructuredMeshGenerator:
             The name of the output mesh file.
         """
         blocks = self._parse_block_json_file()
-        cell_vertices_list, edge_boundary_list = self._discretise_domain_into_cells(blocks)
-        self._output_mesh(output_file, cell_vertices_list, edge_boundary_list)
+        
+        cell_vertices_list, cell_edge_list, cell_neighbour_edge_list, edge_boundary_list = self._discretise_domain_into_cells(blocks)
+
+        self._calculate_surface_neighbour_cells(cell_edge_list, cell_neighbour_edge_list)
+
+        self._output_mesh(output_file, cell_vertices_list, cell_neighbour_edge_list, edge_boundary_list)
 
 
 @click.command()
